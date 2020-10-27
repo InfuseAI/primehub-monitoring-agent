@@ -34,7 +34,6 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-### Go Patch ###
 /vendor/
 /Godeps/
 
@@ -47,3 +46,5 @@
 *.code-workspace
 
 # End of https://www.toptal.com/developers/gitignore/api/go,vscode,git
+primehub-monitoring-agent
+.idea/

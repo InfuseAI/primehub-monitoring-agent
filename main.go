@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"primehub-controller/usage-agent/monitoring"
+	"primehub-usage-agent/monitoring"
 	"syscall"
 	"time"
 
@@ -114,6 +114,7 @@ func (m *Monitor) Worker() {
 	log.Debug("monitor start")
 	ticker := time.NewTicker(time.Duration(m.interval) * time.Second)
 LOOP:
+	// TODO this might have race-condition
 	for {
 		select {
 		case <-ticker.C:

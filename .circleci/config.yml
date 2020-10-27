@@ -1,0 +1,97 @@
+version: 2
+jobs:
+  unit_test:
+    docker: # run the steps with Docker
+      # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Unit tests
+          no_output_timeout: 40m
+          command: |
+            make test
+            go tool cover -html=cover.out -o coverage.html
+            mkdir -p /tmp/artifacts
+            mv coverage.html /tmp/artifacts
+      - store_artifacts:
+          path: /tmp/artifacts
+  build:
+    docker: # run the steps with Docker
+      # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build image
+          no_output_timeout: 40m
+          command: |
+            echo "Looking for Docker deployment options"
+            if [ ! -n "${DOCKER_TAG:-}" ]
+                then
+                    DOCKER_TAG=$(echo "${CIRCLE_SHA1:0:7}")
+            fi
+            # If not set, define CONTAINER_NAME
+            if [[ ! -n "${CONTAINER_NAME:-}" ]]
+                then
+                    CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            fi
+            echo "Container name set to ${CONTAINER_NAME}:${DOCKER_TAG}"
+            make docker-build IMG=${CONTAINER_NAME}:${DOCKER_TAG}
+      # deploy the image
+      - run:
+          name: Deploy to Docker Hub
+          no_output_timeout: 40m
+          command: |
+            echo "Looking for Docker deployment options"
+            if [ ! -n "${DOCKER_TAG:-}" ]
+                then
+                    DOCKER_TAG=$(echo "${CIRCLE_SHA1:0:7}")
+            fi
+            # If not set, define CONTAINER_NAME
+            if [[ ! -n "${CONTAINER_NAME:-}" ]]
+                then
+                    CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            fi
+            echo "Container name set to ${CONTAINER_NAME}:${DOCKER_TAG}"
+            if [[ -n "$DOCKER_PASS" ]]; then
+                  docker login -u $DOCKER_USER -p $DOCKER_PASS
+                  docker push ${CONTAINER_NAME}:${DOCKER_TAG}
+                  if [[ -n "$CIRCLE_TAG" ]]; then
+                    docker tag ${CONTAINER_NAME}:${DOCKER_TAG} ${CONTAINER_NAME}:${CIRCLE_TAG}
+                    docker push ${CONTAINER_NAME}:${CIRCLE_TAG}
+                  else
+                    docker tag ${CONTAINER_NAME}:${DOCKER_TAG} ${CONTAINER_NAME}:latest
+                    docker push ${CONTAINER_NAME}:latest
+                  fi
+            fi
+
+workflows:
+  version: 2
+  latest_builds:
+    jobs:
+      - unit_test
+      - build:
+          requires:
+            - unit_test
+          filters:
+            branches:
+              only: master
+  build_tag:
+    jobs:
+      - unit_test:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      - build:
+          requires:
+            - unit_test
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
