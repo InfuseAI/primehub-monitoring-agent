@@ -78,7 +78,7 @@ workflows:
             - unit_test
           filters:
             branches:
-              only: main
+              only: master
   build_tag:
     jobs:
       - unit_test:
