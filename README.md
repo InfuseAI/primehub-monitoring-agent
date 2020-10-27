@@ -17,6 +17,10 @@ __________        .__                 ___ ___      ___.
 
 PrimeHub usage agent
 
+## Contributing
+
+We welcome contributions. See [Contributing](CONTRIBUTING.md) to get started.
+
 ## License
 
 Please see [License](LICENSE) for more details.
