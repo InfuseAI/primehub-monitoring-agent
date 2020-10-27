@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"primehub-monitoring-agent/monitoring"
 	"syscall"
 	"time"
@@ -34,6 +35,10 @@ var (
 )
 
 func NewMonitor(interval int, path string, lifetimeMax int) *Monitor {
+	if _, err := os.Stat(filepath.Dir(path)); os.IsNotExist(err) {
+		log.Warnf("directory %s doesn't exist, fallback to ./monitoring", filepath.Dir(path))
+		path = "./monitoring"
+	}
 	m := Monitor{
 		interval:    interval,
 		path:        path,
@@ -89,7 +94,7 @@ func (m *Monitor) flushToFile() {
 	}
 
 	output, _ := json.Marshal(report)
-	ioutil.WriteFile("output.json", output, 0644)
+	ioutil.WriteFile(m.path, output, 0644)
 }
 
 func (m *Monitor) Init() {
@@ -183,9 +188,9 @@ func main() {
 	flag.Parse()
 
 	context = &daemon.Context{
-		PidFileName: "usage-agent.pid",
+		PidFileName: ".monitoring-agent.pid",
 		PidFilePerm: 0644,
-		LogFileName: "usage-agent.log",
+		LogFileName: ".monitoring-agent.log",
 		LogFilePerm: 0640,
 		WorkDir:     "./",
 		Umask:       027,
