@@ -83,12 +83,11 @@ func (g *GpuMemoryCollector) Fetch() ResourceCollectorResult {
 			continue
 		}
 
-		result := results[i]
-		result.Index = int(minorNumber)
-		result.Utilization = int(gpuUtilization)
-		result.Memory = int(memoryUtilization)
+		results[i].Index = int(minorNumber)
+		results[i].Utilization = int(gpuUtilization)
+		results[i].Memory = int(memoryUtilization)
 
-		log.Debugf("device [%d], utilization: [%d], memory: [%d]",
+		log.Debugf("GPU::device [%d], Utilization: %d, Memory: %d",
 			minorNumber, gpuUtilization, memoryUtilization)
 	}
 

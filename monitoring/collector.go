@@ -3,8 +3,10 @@ package monitoring
 type ResourceCollectorResult struct {
 	Utilization int
 	Memory      int
-	Index       int
-	GPU         []ResourceCollectorResult
+
+	// used by gpu result
+	Index int
+	GPU   []ResourceCollectorResult
 }
 
 type ResourceCollector interface {

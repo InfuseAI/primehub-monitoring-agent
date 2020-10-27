@@ -73,6 +73,14 @@ func (m *Monitor) buildRecord() monitoring.Record {
 			}
 		}
 	}
+
+	if log.GetLevel() == log.DebugLevel {
+		log.Debugf("[buildRecord] CPU: %d, MemoryUsed: %d", record.CpuUtilization, record.MemoryUsed)
+		for i := 0; i < len(record.GPURecords); i++ {
+			log.Debugf("[buildRecord] GPU[%d], GPUUtilization: %d, MemoryUsed: %d",
+				record.GPURecords[i].Index, record.GPURecords[i].GPUUtilization, record.GPURecords[i].MemoryUsed)
+		}
+	}
 	return record
 }
 
