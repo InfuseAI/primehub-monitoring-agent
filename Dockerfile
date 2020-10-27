@@ -14,10 +14,13 @@ RUN go mod download
 # Copy the go source
 COPY main.go main.go
 COPY monitoring/ monitoring/
+COPY misc/ misc/
 
 # Build
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o primehub-monitoring-agent main.go
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o gonvml-example misc/example.go
 
 FROM ${BASE_IMAGE}
 COPY --from=builder /workspace/primehub-monitoring-agent /
+COPY --from=builder /workspace/gonvml-example /
 
