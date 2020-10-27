@@ -58,9 +58,7 @@ func (g *GpuMemoryCollector) Stop() {
 
 func (g *GpuMemoryCollector) Fetch() ResourceCollectorResult {
 	if !g.Available {
-		return ResourceCollectorResult{
-			Type: RESULT_NONE,
-		}
+		return ResourceCollectorResult{}
 	}
 
 	results := make([]ResourceCollectorResult, g.NumDevices)
@@ -95,7 +93,6 @@ func (g *GpuMemoryCollector) Fetch() ResourceCollectorResult {
 	}
 
 	return ResourceCollectorResult{
-		GPU:  results,
-		Type: RESULT_GPU,
+		GPU: results,
 	}
 }

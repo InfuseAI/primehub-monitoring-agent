@@ -80,7 +80,7 @@ func (b *Buffer) LastAverage(request int) Record {
 			for g := 0; g < len(r.GPURecords); g++ {
 				record.GPURecords[g].Index = r.GPURecords[g].Index
 				record.GPURecords[g].GPUUtilization += r.GPURecords[g].GPUUtilization
-				record.GPURecords[g].MemoryUsed = r.GPURecords[g].MemoryUsed
+				record.GPURecords[g].MemoryUsed += r.GPURecords[g].MemoryUsed
 			}
 		}
 	}

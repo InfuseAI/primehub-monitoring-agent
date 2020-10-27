@@ -28,7 +28,6 @@ func (r *CpuMemoryCollector) Fetch() ResourceCollectorResult {
 		Memory:      r.MemoryUsage,
 		Index:       0,
 		GPU:         nil,
-		Type:        RESULT_CPU,
 	}
 }
 

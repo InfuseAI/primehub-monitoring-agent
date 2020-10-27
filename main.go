@@ -65,13 +65,11 @@ func (m *Monitor) buildRecord() monitoring.Record {
 
 	if m.gpuCollector.Available {
 		r := m.gpuCollector.Fetch()
-		if r.Type == monitoring.RESULT_GPU {
-			for i := 0; i < m.gpuCollector.NumDevices; i++ {
-				gpuRecords[i] = monitoring.GPURecord{
-					Index:          r.GPU[i].Index,
-					GPUUtilization: r.GPU[i].Utilization,
-					MemoryUsed:     r.GPU[i].Memory,
-				}
+		for i := 0; i < m.gpuCollector.NumDevices; i++ {
+			gpuRecords[i] = monitoring.GPURecord{
+				Index:          r.GPU[i].Index,
+				GPUUtilization: r.GPU[i].Utilization,
+				MemoryUsed:     r.GPU[i].Memory,
 			}
 		}
 	}
