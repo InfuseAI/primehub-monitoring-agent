@@ -50,7 +50,7 @@ func (r *CpuMemoryCollector) Start() {
 	if memoryTotal == UnlimitedMemory {
 		log.Warnf("Found unlimited memory settings (%d), keep MemoryTotal as 0", UnlimitedMemory)
 	} else {
-		r.MemoryTotal = int(memoryTotal / 1024 * 1024)
+		r.MemoryTotal = int(memoryTotal / (1024 * 1024))
 		log.Infof("Set MemoryTotal %d MB", r.MemoryTotal)
 	}
 
