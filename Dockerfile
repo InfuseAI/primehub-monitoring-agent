@@ -1,4 +1,6 @@
-# Build the manager binary
+# Use distroless as minimal base image to package the manager binary
+# Refer to https://github.com/GoogleContainerTools/distroless for more details
+ARG BASE_IMAGE=gcr.io/distroless/static:nonroot
 FROM golang:1.13 as builder
 
 WORKDIR /workspace
@@ -16,8 +18,6 @@ COPY monitoring/ monitoring/
 # Build
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o primehub-monitoring-agent main.go
 
-# Use distroless as minimal base image to package the manager binary
-# Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM busybox
+FROM ${BASE_IMAGE}
 COPY --from=builder /workspace/primehub-monitoring-agent /
-ENTRYPOINT ["sh"]
+

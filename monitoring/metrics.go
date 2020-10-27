@@ -19,17 +19,17 @@ func NewMetrics(lifetimeMax int) *Metrics {
 	// 1h: 30s → 60 * 60 / 30 = 120 points
 	m.OneHour = NewBuffer(30, 120)
 	m.OneHour.AverageByLast = m.OneHour.Interval / m.FifteenMinutes.Interval
-	log.Printf("OneHour.AverageByLast=%d\n", m.OneHour.AverageByLast)
+	log.Debugf("OneHour.AverageByLast=%d", m.OneHour.AverageByLast)
 
 	// 3h: 2m → 3 * 60 * 60 / 120 = 90 points
 	m.ThreeHours = NewBuffer(2*60, 90)
 	m.ThreeHours.AverageByLast = m.ThreeHours.Interval / m.FifteenMinutes.Interval
-	log.Printf("ThreeHours.AverageByLast=%d\n", m.ThreeHours.AverageByLast)
+	log.Debugf("ThreeHours.AverageByLast=%d", m.ThreeHours.AverageByLast)
 
 	// 4 week: 5m → 4 * 7 * 24 * 60 * 60 / 300 = 8064 points
 	m.LifeTime = NewBuffer(5*60, lifetimeMax)
 	m.LifeTime.AverageByLast = m.LifeTime.Interval / m.FifteenMinutes.Interval
-	log.Printf("LifeTime.AverageByLast=%d\n", m.LifeTime.AverageByLast)
+	log.Debugf("LifeTime.AverageByLast=%d", m.LifeTime.AverageByLast)
 	return m
 }
 

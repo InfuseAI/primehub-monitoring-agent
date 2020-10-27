@@ -30,6 +30,10 @@ fmt:
 vet:
 	go vet ./...
 
-
+# Build release image
 docker-build: test
 	docker build . -t ${IMG}
+
+# Build dev image, the agent could be running in the container
+dev-docker-build: test
+	docker build . -t ${IMG} --build-arg BASE_IMAGE=ubuntu:18.04
