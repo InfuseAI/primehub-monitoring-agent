@@ -1,4 +1,4 @@
-module primehub-usage-agent
+module primehub-monitoring-agent
 
 go 1.13
 

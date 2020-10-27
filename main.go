@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"primehub-usage-agent/monitoring"
+	"primehub-monitoring-agent/monitoring"
 	"syscall"
 	"time"
 
