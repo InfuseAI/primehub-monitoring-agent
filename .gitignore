@@ -48,3 +48,6 @@
 # End of https://www.toptal.com/developers/gitignore/api/go,vscode,git
 primehub-monitoring-agent
 .idea/
+gonvml-example
+main
+

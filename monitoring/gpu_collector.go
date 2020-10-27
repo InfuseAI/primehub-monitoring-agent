@@ -68,20 +68,20 @@ func (g *GpuMemoryCollector) Fetch() ResourceCollectorResult {
 	for i := 0; i < int(g.NumDevices); i++ {
 		dev, err := gonvml.DeviceHandleByIndex(uint(i))
 		if err != nil {
-			log.Printf("\tDeviceHandleByIndex() error: %v\n", err)
+			log.Debugf("DeviceHandleByIndex() error: %v", err)
 			continue
 		}
 
 		minorNumber, err := dev.MinorNumber()
 
 		if err != nil {
-			log.Printf("\tdev.MinorNumber() error: %v\n", err)
+			log.Debugf("dev.MinorNumber() error: %v", err)
 			continue
 		}
 
 		gpuUtilization, memoryUtilization, err := dev.UtilizationRates()
 		if err != nil {
-			log.Printf("\tdev.UtilizationRates() error: %v\n", err)
+			log.Debugf("dev.UtilizationRates() error: %v", err)
 			continue
 		}
 
@@ -89,6 +89,9 @@ func (g *GpuMemoryCollector) Fetch() ResourceCollectorResult {
 		result.Index = int(minorNumber)
 		result.Utilization = int(gpuUtilization)
 		result.Memory = int(memoryUtilization)
+
+		log.Debugf("device [%d], utilization: [%d], memory: [%d]",
+			minorNumber, gpuUtilization, memoryUtilization)
 	}
 
 	return ResourceCollectorResult{
