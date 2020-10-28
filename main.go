@@ -16,11 +16,12 @@ import (
 )
 
 type Monitor struct {
-	interval int
-	path     string
-	flush    chan struct{}
-	stop     chan struct{}
-	stopped  chan struct{}
+	updateInterval int
+	flushPeriod    int
+	path           string
+	flush          chan struct{}
+	stop           chan struct{}
+	stopped        chan struct{}
 
 	cpuCollector monitoring.CpuMemoryCollector
 	gpuCollector monitoring.GpuMemoryCollector
@@ -34,22 +35,18 @@ var (
 	monitor *Monitor
 )
 
-func NewMonitor(interval int, path string, lifetimeMax int) *Monitor {
-	if _, err := os.Stat(filepath.Dir(path)); os.IsNotExist(err) {
-		log.Warnf("directory %s doesn't exist, fallback to ./monitoring", filepath.Dir(path))
-		path = "./monitoring"
-	}
+func NewMonitor(updateInterval int, path string, lifetimeMax int, flushPeriod int) *Monitor {
 	m := Monitor{
-		interval:    interval,
-		path:        path,
-		lifetimeMax: lifetimeMax,
+		updateInterval: updateInterval,
+		path:           path,
+		lifetimeMax:    lifetimeMax,
+		flushPeriod:    flushPeriod,
 	}
 	m.Init()
 	return &m
 }
 
 func (m *Monitor) updateMetrics() {
-	log.Debug("monitor fetch metrics")
 	m.metrics.Add(m.buildRecord())
 }
 
@@ -75,9 +72,9 @@ func (m *Monitor) buildRecord() monitoring.Record {
 	}
 
 	if log.GetLevel() == log.DebugLevel {
-		log.Debugf("[buildRecord] CPU: %d, MemoryUsed: %d", record.CpuUtilization, record.MemoryUsed)
+		log.Debugf("[BuildRecord] CPU: %d, MemoryUsed: %d", record.CpuUtilization, record.MemoryUsed)
 		for i := 0; i < len(record.GPURecords); i++ {
-			log.Debugf("[buildRecord] GPU[%d], GPUUtilization: %d, MemoryUsed: %d",
+			log.Debugf("[BuildRecord] GPU[%d], GPUUtilization: %d, MemoryUsed: %d",
 				record.GPURecords[i].Index, record.GPURecords[i].GPUUtilization, record.GPURecords[i].MemoryUsed)
 		}
 	}
@@ -85,7 +82,7 @@ func (m *Monitor) buildRecord() monitoring.Record {
 }
 
 func (m *Monitor) flushToFile() {
-	log.Debug("monitor flush to path", m.path)
+	log.Debugf("[FlushRecord] Path: %s", m.path)
 	report := monitoring.Monitoring{
 		Spec: monitoring.Spec{
 			MemoryTotal: m.cpuCollector.MemoryTotal,
@@ -123,13 +120,19 @@ func (m *Monitor) Flush() {
 
 func (m *Monitor) Worker() {
 	log.Debug("monitor start")
-	ticker := time.NewTicker(time.Duration(m.interval) * time.Second)
+	counter := 0
+	ticker := time.NewTicker(time.Duration(m.updateInterval) * time.Second)
 LOOP:
 	// TODO this might have race-condition
 	for {
 		select {
 		case <-ticker.C:
 			m.updateMetrics()
+			counter++
+			if counter == m.flushPeriod {
+				m.flushToFile()
+				counter = 0
+			}
 		case <-m.flush:
 			m.flushToFile()
 		case <-m.stop:
@@ -138,7 +141,6 @@ LOOP:
 		}
 	}
 	m.stopped <- struct{}{}
-
 }
 
 func (m *Monitor) Stop() {
@@ -182,12 +184,16 @@ func main() {
 	var debug bool
 	var isForeground bool
 	var lifetimeMax int
+	var updateInterval int
+	var flushPeriod int
 	phJobName := getEnv("PHJOB_NAME", "job-test")
 	flushPath := fmt.Sprintf("/phfs/jobArtifacts/%s/.metadata/monitoring", phJobName)
 
 	flag.BoolVar(&debug, "debug", false, "Enable debug mod")
 	flag.BoolVar(&isForeground, "D", false, "Run the agent in foreground")
 	flag.StringVar(&flushPath, "path", flushPath, "Path of flush file")
+	flag.IntVar(&updateInterval, "updateInterval", 10, "Interval seconds of update metrics")
+	flag.IntVar(&flushPeriod, "flushPeriod", 3, "Period of interval for flushing metrics to file")
 
 	// 4 week: 5m → 4 * 7 * 24 * 60 * 60 / 300 = 8064 points
 	flag.IntVar(&lifetimeMax, "lifetime-max", 8064, "Max data in the lifetime buffer")
@@ -221,6 +227,16 @@ func main() {
 		log.Info("daemon started")
 	}
 
+	// Check flush path exist or not
+	if _, err := os.Stat(filepath.Dir(flushPath)); os.IsNotExist(err) {
+		log.Warnf("Directory %s doesn't exist, fallback to 'monitoring.json'", filepath.Dir(flushPath))
+		pwd, err := os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
+		flushPath = filepath.Join(pwd, "monitoring.json")
+	}
+
 	// Setup signal handler
 	daemon.SetSigHandler(flushHandler, syscall.SIGHUP)
 	daemon.SetSigHandler(termHandler, syscall.SIGTERM)
@@ -231,7 +247,7 @@ func main() {
 	log.Debugf("debug: %v", debug)
 	log.Debugf("isForeground: %v", isForeground)
 
-	monitor = NewMonitor(10, flushPath, lifetimeMax)
+	monitor = NewMonitor(updateInterval, flushPath, lifetimeMax, flushPeriod)
 
 	// Run MainLoop as worker thread
 	go monitor.Worker()

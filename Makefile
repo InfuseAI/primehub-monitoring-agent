@@ -14,9 +14,9 @@ all: agent
 test: fmt vet
 	go test ./... -coverprofile cover.out
 
-# Build usage-agent binary
+# Build primehub-monitoring-agent binary
 agent: fmt vet
-	go build -o ../bin/usage-agent main.go
+	go build -o primehub-monitoring-agent main.go
 
 # Run usage-agnet
 run: fmt vet
