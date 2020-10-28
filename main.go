@@ -243,6 +243,7 @@ func main() {
 	daemon.SetSigHandler(termHandler, syscall.SIGQUIT)
 	daemon.SetSigHandler(termHandler, syscall.SIGINT)
 
+	log.Debug(monitoring.GetVersion())
 	log.Debugf("path: %s", flushPath)
 	log.Debugf("debug: %v", debug)
 	log.Debugf("isForeground: %v", isForeground)
