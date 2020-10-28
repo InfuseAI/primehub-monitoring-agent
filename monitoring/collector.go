@@ -2,7 +2,7 @@ package monitoring
 
 type ResourceCollectorResult struct {
 	Utilization int
-	Memory      int
+	Memory      int64
 
 	// used by gpu result
 	Index int

@@ -86,11 +86,11 @@ func (b *Buffer) LastAverage(request int) Record {
 	}
 
 	record.CpuUtilization /= last
-	record.MemoryUsed /= last
+	record.MemoryUsed /= int64(last)
 	if record.GPURecords != nil {
 		for g := 0; g < len(record.GPURecords); g++ {
 			record.GPURecords[g].GPUUtilization /= last
-			record.GPURecords[g].MemoryUsed /= last
+			record.GPURecords[g].MemoryUsed /= int64(last)
 		}
 	}
 

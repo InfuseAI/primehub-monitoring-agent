@@ -17,8 +17,8 @@ type CpuMemoryCollector struct {
 	StartedTime      time.Time
 	CpuAcctValue     int64
 	CpuUsageValue    int
-	MemoryUsage      int
-	MemoryTotal      int
+	MemoryUsage      int64
+	MemoryTotal      int64
 	StopFlag         chan int
 }
 
@@ -50,7 +50,7 @@ func (r *CpuMemoryCollector) Start() {
 	if memoryTotal == UnlimitedMemory {
 		log.Warnf("Found unlimited memory settings (%d), keep MemoryTotal as 0", UnlimitedMemory)
 	} else {
-		r.MemoryTotal = int(memoryTotal / (1024 * 1024))
+		r.MemoryTotal = memoryTotal
 		log.Infof("Set MemoryTotal %d MB", r.MemoryTotal)
 	}
 
@@ -95,7 +95,7 @@ func (r *CpuMemoryCollector) updateMemoryUsage() {
 	usageInBytes, usageErr := ReadNumber("/sys/fs/cgroup/memory/memory.usage_in_bytes")
 	inactive, inactiveErr := ReadTotalInactiveFile("/sys/fs/cgroup/memory/memory.stat")
 	if usageErr == nil && inactiveErr == nil {
-		r.MemoryUsage = int((usageInBytes - inactive) / (1024 * 1024))
+		r.MemoryUsage = usageInBytes - inactive
 	}
 }
 
