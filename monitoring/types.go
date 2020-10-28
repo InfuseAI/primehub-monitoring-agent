@@ -1,25 +1,25 @@
 package monitoring
 
 type GPUSpec struct {
-	Index       int `json:"index"`
-	MemoryTotal int `json:"mem_total"`
+	Index       int   `json:"index"`
+	MemoryTotal int64 `json:"mem_total"`
 }
 
 type Spec struct {
-	MemoryTotal int       `json:"mem_total"`
+	MemoryTotal int64     `json:"mem_total"`
 	GPUSpec     []GPUSpec `json:"GPU"`
 }
 
 type GPURecord struct {
-	Index          int `json:"index"`
-	MemoryUsed     int `json:"mem_used"`
-	GPUUtilization int `json:"gpu_util"`
+	Index          int   `json:"index"`
+	MemoryUsed     int64 `json:"mem_used"`
+	GPUUtilization int   `json:"gpu_util"`
 }
 
 type Record struct {
 	Timestamp      int64       `json:"timestamp"`
 	CpuUtilization int         `json:"cpu_util"`
-	MemoryUsed     int         `json:"mem_used"`
+	MemoryUsed     int64       `json:"mem_used"`
 	GPURecords     []GPURecord `json:"GPU"`
 }
 

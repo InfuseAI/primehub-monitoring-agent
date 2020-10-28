@@ -24,7 +24,7 @@ func (g *GpuMemoryCollector) Start() {
 	numDevices, err := gonvml.DeviceCount()
 	log.Infof("Get %d gpu-devices", numDevices)
 	if err != nil {
-		log.Printf("DeviceCount() error: %v\n", err)
+		log.Printf("DeviceCount() error: %v", err)
 		defer gonvml.Shutdown()
 		return
 	}
@@ -44,8 +44,8 @@ func (g *GpuMemoryCollector) Start() {
 		total, _, _ := dev.MemoryInfo()
 
 		g.Devices[i].Index = int(deviceIndex)
-		g.Devices[i].MemoryTotal = int(total / (1024 * 1024))
-		log.Infof("Set device[%d] Index=%d, Memory=%d\n", i, deviceIndex, g.Devices[i].MemoryTotal)
+		g.Devices[i].MemoryTotal = int64(total)
+		log.Infof("Set device[%d] Index=%d, Memory=%d", i, deviceIndex, g.Devices[i].MemoryTotal)
 	}
 	g.Available = true
 }
@@ -77,18 +77,24 @@ func (g *GpuMemoryCollector) Fetch() ResourceCollectorResult {
 			continue
 		}
 
-		gpuUtilization, memoryUtilization, err := dev.UtilizationRates()
+		gpuUtilization, _, err := dev.UtilizationRates()
 		if err != nil {
 			log.Debugf("dev.UtilizationRates() error: %v", err)
 			continue
 		}
 
+		_, memoryUsed, err := dev.MemoryInfo()
+		if err != nil {
+			log.Debugf("dev.MemoryInfo() error: %v", err)
+			continue
+		}
+
 		results[i].Index = int(minorNumber)
 		results[i].Utilization = int(gpuUtilization)
-		results[i].Memory = int(memoryUtilization)
+		results[i].Memory = int64(memoryUsed)
 
 		log.Debugf("GPU::device [%d], Utilization: %d, Memory: %d",
-			minorNumber, gpuUtilization, memoryUtilization)
+			minorNumber, gpuUtilization, memoryUsed)
 	}
 
 	return ResourceCollectorResult{
