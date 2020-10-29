@@ -1,6 +1,5 @@
-# Use distroless as minimal base image to package the manager binary
-# Refer to https://github.com/GoogleContainerTools/distroless for more details
-ARG BASE_IMAGE=gcr.io/distroless/static:nonroot
+# We need the cp command to copy files to shared volumes
+ARG BASE_IMAGE=busybox:1.32
 
 FROM golang:1.13 as builder
 ARG LDFLAGS
