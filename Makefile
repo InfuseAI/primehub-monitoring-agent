@@ -1,5 +1,6 @@
 # Image URL to use all building/pushing image targets
 IMG ?= monitoring:latest
+VERSION ?=
 LDFLAGS =
 
 GIT_COMMIT = $(shell git rev-parse HEAD)
@@ -7,6 +8,7 @@ GIT_SHA    = $(shell git rev-parse --short HEAD)
 GIT_TAG    = $(shell git describe --tags --abbrev=0 --exact-match 2>/dev/null)
 GIT_DIRTY  = $(shell test -n "`git status --porcelain`" && echo "dirty" || echo "clean")
 
+LDFLAGS += -X primehub-monitoring-agent/monitoring.tagVersion=${VERSION}
 LDFLAGS += -X primehub-monitoring-agent/monitoring.gitCommit=${GIT_COMMIT}
 LDFLAGS += -X primehub-monitoring-agent/monitoring.gitTreeState=${GIT_DIRTY}
 LDFLAGS += $(EXT_LDFLAGS)

@@ -9,6 +9,9 @@ import (
 var (
 	version = "v0.1-dev"
 
+	// overwrite version when tagVersion exists
+	tagVersion = ""
+
 	// gitCommit is the git sha1
 	gitCommit = ""
 
@@ -29,6 +32,10 @@ func GetVersion() string {
 		GitCommit:    gitCommit,
 		GitTreeState: gitTreeState,
 		GoVersion:    runtime.Version(),
+	}
+
+	if tagVersion != "" {
+		info.Version = tagVersion
 	}
 
 	data, _ := json.Marshal(info)

@@ -39,7 +39,11 @@ jobs:
                     CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
             fi
             echo "Container name set to ${CONTAINER_NAME}:${DOCKER_TAG}"
-            make docker-build IMG=${CONTAINER_NAME}:${DOCKER_TAG}
+            if [[ -n "$CIRCLE_TAG" ]]; then
+              make docker-build IMG=${CONTAINER_NAME}:${DOCKER_TAG} VERSION=${CIRCLE_TAG}
+            else
+              make docker-build IMG=${CONTAINER_NAME}:${DOCKER_TAG}
+            fi
       # deploy the image
       - run:
           name: Deploy to Docker Hub
