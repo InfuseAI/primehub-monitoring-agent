@@ -13,6 +13,9 @@ __________        .__                 ___ ___      ___.
         \/            \/                              \//_____/           \//_____/      \/     \/
 ```
 
+[![CircleCI](https://circleci.com/gh/InfuseAI/primehub-monitoring-agent.svg?style=shield)](https://circleci.com/gh/InfuseAI/primehub-monitoring-agent)
+[![Release](https://img.shields.io/github/v/release/infuseai/primehub-monitoring-agent.svg)](https://github.com/InfuseAI/primehub-monitoring-agent/releases)
+
 # primehub-monitoring-agent
 
 PrimeHub monitoring agent
