@@ -34,9 +34,9 @@ func NewMetrics(lifetimeMax int) *Metrics {
 }
 
 func (m *Metrics) Add(record Record) {
-	if m.FifteenMinutes.IsTimeToUpdate() {
-		m.FifteenMinutes.Add(record)
-	}
+	// don't check IsTimeToUpdate here
+	// it is controlled by caller, just accept it
+	m.FifteenMinutes.Add(record)
 
 	if m.FifteenMinutes.HasLast(m.OneHour.AverageByLast) && m.OneHour.IsTimeToUpdate() {
 		m.OneHour.Add(m.FifteenMinutes.LastAverage(m.OneHour.AverageByLast))
