@@ -46,15 +46,15 @@ func NewMonitor(updateInterval int, path string, lifetimeMax int, flushPeriod in
 	return &m
 }
 
-func (m *Monitor) updateMetrics() {
-	m.metrics.Add(m.buildRecord())
+func (m *Monitor) updateMetrics(updateTime int64) {
+	m.metrics.Add(m.buildRecord(updateTime))
 }
 
-func (m *Monitor) buildRecord() monitoring.Record {
+func (m *Monitor) buildRecord(updateTime int64) monitoring.Record {
 	cpu := m.cpuCollector.Fetch()
 	gpuRecords := make([]monitoring.GPURecord, m.gpuCollector.NumDevices)
 	record := monitoring.Record{
-		Timestamp:      time.Now().Unix(),
+		Timestamp:      updateTime,
 		CpuUtilization: cpu.Utilization,
 		MemoryUsed:     cpu.Memory,
 		GPURecords:     gpuRecords,
@@ -127,7 +127,7 @@ LOOP:
 	for {
 		select {
 		case <-ticker.C:
-			m.updateMetrics()
+			m.updateMetrics(time.Now().Unix())
 			counter++
 			if counter == m.flushPeriod {
 				m.flushToFile()
