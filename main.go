@@ -198,7 +198,7 @@ func main() {
 	var isForeground bool
 	var lifetimeMax int
 	var updateInterval int
-	var flushPeriod int
+	var flushInterval int
 	phJobName := getEnv("PHJOB_NAME", "job-test")
 	flushPath := fmt.Sprintf("/phfs/jobArtifacts/%s/.metadata/monitoring", phJobName)
 
@@ -206,7 +206,7 @@ func main() {
 	flag.BoolVar(&isForeground, "D", false, "Run the agent in foreground")
 	flag.StringVar(&flushPath, "path", flushPath, "Path of flush file")
 	flag.IntVar(&updateInterval, "updateInterval", 10, "Interval seconds of update metrics")
-	flag.IntVar(&flushPeriod, "flushInterval", 15, "Period of interval for flushing metrics to file")
+	flag.IntVar(&flushInterval, "flushInterval", 15, "Interval seconds of flushing metrics to file")
 
 	// 4 week: 5m → 4 * 7 * 24 * 60 * 60 / 300 = 8064 points
 	flag.IntVar(&lifetimeMax, "lifetime-max", 8064, "Max data in the lifetime buffer")
@@ -261,7 +261,7 @@ func main() {
 	log.Debugf("debug: %v", debug)
 	log.Debugf("isForeground: %v", isForeground)
 
-	monitor = NewMonitor(updateInterval, flushPath, lifetimeMax, flushPeriod)
+	monitor = NewMonitor(updateInterval, flushPath, lifetimeMax, flushInterval)
 
 	// Run MainLoop as worker thread
 	go monitor.Worker()
