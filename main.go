@@ -206,7 +206,7 @@ func main() {
 	flag.BoolVar(&isForeground, "D", false, "Run the agent in foreground")
 	flag.StringVar(&flushPath, "path", flushPath, "Path of flush file")
 	flag.IntVar(&updateInterval, "updateInterval", 10, "Interval seconds of update metrics")
-	flag.IntVar(&flushInterval, "flushInterval", 15, "Interval seconds of flushing metrics to file")
+	flag.IntVar(&flushInterval, "flushInterval", 10, "Interval seconds of flushing metrics to file")
 
 	// 4 week: 5m → 4 * 7 * 24 * 60 * 60 / 300 = 8064 points
 	flag.IntVar(&lifetimeMax, "lifetime-max", 8064, "Max data in the lifetime buffer")
